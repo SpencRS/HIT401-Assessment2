@@ -47,20 +47,20 @@ locally in a `.env` file and should not be included in the repository.
     normalising the text and converting the original misinformation label
     from -1 to 1.
 
-- `train_baseline.py`
+- `traditional_ml/train_baseline.py`
   - Runs Experiment 1 using TF-IDF with Logistic Regression.
 
-- `train_balanced_lr.py`
+- `traditional_ml/train_balanced_lr.py`
   - Runs Experiment 2 using TF-IDF with class-balanced Logistic Regression.
 
-- `train_svm.py`
+- `traditional_ml/train_svm.py`
   - Runs Experiment 3 using TF-IDF with class-balanced Linear SVM.
 
-- `train_openai_llm.py`
+- `llm/train_openai_llm.py`
   - Runs the OpenAI zero-shot classification experiment using the same
     test set as the traditional machine-learning experiments.
 
-- `evaluate_openai.py`
+- `llm/evaluate_openai.py`
   - Evaluates the saved OpenAI predictions using accuracy, precision,
     recall, F1-score and a confusion matrix.
 
@@ -135,7 +135,7 @@ This creates:
 ### Step 3 - Run Experiment 1
 
 ```bash
-python train_baseline.py
+python traditional_ml/train_baseline.py
 ```
 
 This runs the baseline Logistic Regression + TF-IDF experiment.
@@ -143,7 +143,7 @@ This runs the baseline Logistic Regression + TF-IDF experiment.
 ### Step 4 - Run Experiment 2
 
 ```bash
-python train_balanced_lr.py
+python traditional_ml/train_balanced_lr.py
 ```
 
 This runs the TF-IDF + class-balanced Logistic Regression model.
@@ -151,7 +151,7 @@ This runs the TF-IDF + class-balanced Logistic Regression model.
 ### Step 5 - Run Experiment 3
 
 ```bash
-python train_svm.py
+python traditional_ml/train_svm.py
 ```
 
 This runs the TF-IDF + class-balanced Linear SVM model.
@@ -162,7 +162,7 @@ Before running the OpenAI experiment, the OpenAI API key must be configured
 locally in a `.env` file.
 
 ```bash
-python train_openai_llm.py
+python llm/train_openai_llm.py
 ```
 
 This sends the same test records used by the traditional machine-learning
@@ -175,7 +175,29 @@ The results are saved to:
 ### Step 7 - Evaluate the OpenAI Results
 
 ```bash
-python evaluate_openai.py
+python llm/evaluate_openai.py
+```
+
+This calculates accuracy, precision, recall, F1-score and the confusion matrix
+from the saved OpenAI predictions.
+
+### Step 8 - Run the Gemini LLM Experiment
+
+```bash
+python llm/train_gemini_llm.py
+```
+
+This sends the same test records used by the traditional machine-learning
+experiments to the Gemini model for zero-shot classification.
+
+The results are saved to:
+
+`data/gemini_llm_results.csv`
+
+### Step 9 - Evaluate the Gemini Results
+
+```bash
+python llm/evaluate_gemini.py
 ```
 
 This calculates accuracy, precision, recall, F1-score and the confusion matrix
@@ -186,7 +208,7 @@ from the saved OpenAI predictions.
 All three traditional machine-learning experiments use the same prepared dataset
 and an 80/20 stratified train-test split.
 
-The OpenAI experiment uses the same 148-record test set so that its predictions
+The OpenAI and Gemini experiment uses the same 148-record test set so that its predictions
 can be compared against the traditional machine-learning experiments.
 
 ### Training Data

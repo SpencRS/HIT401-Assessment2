@@ -5,7 +5,7 @@
 The project investigates the use of machine-learning techniques to classify
 mental-health misinformation in social-media video content. The technical implementation
 uses the MentalMisinfo dataset and compares three TF-IDF based classification approaches
-with a zero-shot large language model classification approach using OpenAI and Gemini.
+with zero-shot large language model classification approaches using OpenAI and Gemini.
 
 The current implementation focuses on text classification. Real-time social-media
 monitoring and the proposed visual analytics dashboard are outside the current
@@ -17,11 +17,12 @@ implementation and remain future components of the project.
 - pandas 3.0.5
 - scikit-learn 1.9.0
 - openai 3.16.2
+- google-genai 1.55.0
 - python-dotenv 1.2.3
 
 The programs were developed and tested using a Python Virtual Environment.
 
-The OpenAI experiment also requires an OpenAI API key. The API key should be stored
+The OpenAI and Gemini experiments require API keys. The API keys should be stored
 locally in a `.env` file and should not be included in the repository.
 
 ## 3. Project Files
@@ -30,10 +31,15 @@ locally in a `.env` file and should not be included in the repository.
 
 - `data/videos_MHMisinfo_Gold.csv`
   - Original MentalMisinfo video dataset used for this project.
+
 - `data/prepared_mhm_dataset.csv`
   - Prepared dataset containing the combined text field and recoded labels.
+
 - `data/openai_llm_results.csv`
   - Results produced by the OpenAI zero-shot classification experiment.
+
+- `data/gemini_llm_results.csv`
+  - Results produced by the Gemini zero-shot classification experiment.
 
 ### Source Code
 
@@ -64,6 +70,20 @@ locally in a `.env` file and should not be included in the repository.
   - Evaluates the saved OpenAI predictions using accuracy, precision,
     recall, F1-score and a confusion matrix.
 
+- `llm/test_openai.py`
+  - Provides testing functionality for the OpenAI LLM implementation.
+
+- `llm/train_gemini_llm.py`
+  - Runs the Gemini zero-shot classification experiment using the same
+    test set as the traditional machine-learning experiments.
+
+- `llm/evaluate_gemini.py`
+  - Evaluates the saved Gemini predictions using accuracy, precision,
+    recall, F1-score and a confusion matrix.
+
+- `llm/test_gemini.py`
+  - Provides testing functionality for the Gemini LLM implementation.
+
 ## 4. Dataset Source
 
 The dataset used in this project is the MentalMisinfo dataset provided by:
@@ -93,6 +113,7 @@ https://github.com/cuongnguyenx/MHMisinfo
 Original dataset contains 739 video records.
 
 The original dataset uses:
+
 - 0 = non-misinformation
 - -1 = misinformation
 
@@ -105,6 +126,7 @@ Video description was not used for modelling because a substantial number of rec
 contained missing or empty descriptions.
 
 Overall prepared dataset contains:
+
 - 739 total records
 - 619 non-misinformation records
 - 120 misinformation records
@@ -183,6 +205,9 @@ from the saved OpenAI predictions.
 
 ### Step 8 - Run the Gemini LLM Experiment
 
+Before running the Gemini experiment, the Gemini API key must be configured
+locally in a `.env` file.
+
 ```bash
 python llm/train_gemini_llm.py
 ```
@@ -201,15 +226,15 @@ python llm/evaluate_gemini.py
 ```
 
 This calculates accuracy, precision, recall, F1-score and the confusion matrix
-from the saved OpenAI predictions.
+from the saved Gemini predictions.
 
 ## 7. Experimental Setup
 
 All three traditional machine-learning experiments use the same prepared dataset
 and an 80/20 stratified train-test split.
 
-The OpenAI and Gemini experiment uses the same 148-record test set so that its predictions
-can be compared against the traditional machine-learning experiments.
+The OpenAI and Gemini experiments use the same 148-record test set so that their
+predictions can be compared against the traditional machine-learning experiments.
 
 ### Training Data
 
@@ -227,8 +252,8 @@ A `random_state` value of 42 was used so that the same train-test split can be
 reproduced across the experiments.
 
 The traditional machine-learning models are trained using the training portion
-of the dataset. The OpenAI experiment is a zero-shot classification approach and
-does not use the training labels as examples.
+of the dataset. The OpenAI and Gemini experiments are zero-shot classification
+approaches and do not use the training labels as examples.
 
 ## 8. Traditional Machine-Learning Results
 
@@ -293,31 +318,101 @@ treated as preliminary rather than as a general measure of model performance.
 
 ## 10. Gemini LLM Experiment
 
-This section will be completed as part of the Gemini LLM experiment.
+A Gemini LLM experiment was conducted to classify mental-health misinformation
+using the same prepared dataset and test split as the other experiments.
 
-The Gemini experiment should use the same 148-record test set and report the
-classification approach, model used, prompt or classification instructions,
-evaluation metrics, confusion matrix and any relevant observations.
+The experiment used:
+
+- **Model:** `gemini-3.1-flash-lite`
+- **Task:** Binary classification of mental-health misinformation
+- **Classes:** `MHMISINFO` and `NON-MHMISINFO`
+- **Test records:** 148
+- **Valid predictions:** 148
+- **Failed predictions:** 0
+
+The Gemini model was given the text content and instructed to return only one
+of the two classification labels. The ground-truth labels were not provided
+to the model.
+
+The predictions were saved to:
+
+`data/gemini_llm_results.csv`
 
 ### Gemini Results
 
-| Metric | Result |
+| Metric | Score |
 |---|---:|
-| Accuracy | TBD |
-| Precision | TBD |
-| Recall | TBD |
-| F1-score | TBD |
+| Accuracy | 78.38% |
+| Precision | 42.59% |
+| Recall | 95.83% |
+| F1-score | 58.97% |
 
 Confusion matrix:
 
 ```text
-TBD
+[[93, 31],
+ [ 1, 23]]
 ```
 
-Additional Gemini observations:
+The results show that Gemini correctly identified 23 out of the 24 mental-health
+misinformation cases, resulting in a recall of 95.83%. However, its precision
+was lower because 31 non-misinformation records were incorrectly classified as
+misinformation.
 
-- TBD
+This indicates that the Gemini model was effective at detecting potential
+misinformation but was relatively aggressive in classifying content as
+misinformation. The Gemini results can therefore be compared with the
+traditional machine-learning and OpenAI experiments using the same test set.
 
+The Gemini experiment implementation is available in:
+
+- `llm/train_gemini_llm.py`
+- `llm/evaluate_gemini.py`
+- `llm/test_gemini.py`
+
+The generated results are available in:
+
+`data/gemini_llm_results.csv`
+
+## 11. LLM Comparison
+
+Both LLM experiments used zero-shot classification and the same 148-record
+test set. This allows their results to be compared using the same ground-truth
+labels.
+
+| Model | Accuracy | Precision | Recall | F1-score |
+|---|---:|---:|---:|---:|
+| OpenAI | 76.35% | 40.35% | 95.83% | 56.79% |
+| Gemini | 78.38% | 42.59% | 95.83% | 58.97% |
+
+Both LLM experiments identified 23 of the 24 misinformation records, resulting
+in the same recall of 95.83%.
+
+The Gemini experiment produced fewer false-positive classifications than the
+OpenAI experiment, with 31 non-misinformation records incorrectly classified as
+misinformation compared with 34 for OpenAI.
+
+The results are based on the same 148-record test set and should therefore be
+interpreted as an experimental comparison rather than a general measure of
+LLM performance.
+
+## 12. Limitations
+
+The experiments were conducted using a relatively small dataset containing
+739 records, with only 120 records labelled as misinformation.
+
+The test set contained 24 misinformation records. Therefore, individual
+classification errors can have a noticeable effect on the reported metrics.
+
+The LLM experiments were conducted using zero-shot classification and did not
+provide the ground-truth labels to the models.
+
+The results are based on a single stratified 80/20 train-test split and a
+single test set of 148 records. The results should therefore be considered
+preliminary and may not generalise to other datasets or social-media content.
+
+Real-time social-media monitoring and the proposed visual analytics dashboard
+were outside the current implementation scope.
 
 ## 13. References
 
